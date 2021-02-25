@@ -18,12 +18,16 @@ from openapi_core.unmarshalling.schemas.factories import (
     SchemaUnmarshallersFactory,
 )
 from openapi_core.unmarshalling.schemas.formatters import Formatter
+from openapi_core.unmarshalling.schemas.util import build_format_checker
 
 
 @pytest.fixture
 def unmarshaller_factory():
     def create_unmarshaller(schema, custom_formatters=None, context=None):
+        custom_formatters = custom_formatters or {}
+        format_checker = build_format_checker(**custom_formatters)
         return SchemaUnmarshallersFactory(
+            format_checker=format_checker,
             custom_formatters=custom_formatters, context=context).create(
                 schema)
     return create_unmarshaller
@@ -352,6 +356,27 @@ class TestSchemaUnmarshallerCall(object):
 
         assert result == value
 
+    def test_array_null(self, unmarshaller_factory):
+        schema = Schema(
+            'array',
+            items=Schema('integer'),
+        )
+        value = None
+
+        with pytest.raises(TypeError):
+            unmarshaller_factory(schema)(value)
+
+    def test_array_nullable(self, unmarshaller_factory):
+        schema = Schema(
+            'array',
+            items=Schema('integer'),
+            nullable=True,
+        )
+        value = None
+        result = unmarshaller_factory(schema)(value)
+
+        assert result is None
+
     def test_array_of_string_string_invalid(self, unmarshaller_factory):
         schema = Schema('array', items=Schema('string'))
         value = '123'
@@ -444,6 +469,69 @@ class TestSchemaUnmarshallerCall(object):
             Schema('array', items=Schema('string')),
         ])
         assert unmarshaller_factory(schema)(['hello']) == ['hello']
+
+    def test_schema_any_all_of(self, unmarshaller_factory):
+        schema = Schema(all_of=[
+            Schema('array', items=Schema('string')),
+        ])
+        assert unmarshaller_factory(schema)(['hello']) == ['hello']
+
+    @pytest.mark.parametrize('value', [
+        {
+            'somestr': {},
+            'someint': 123,
+        },
+        {
+            'somestr': [
+                'content1', 'content2'
+            ],
+            'someint': 123,
+        },
+        {
+            'somestr': 123,
+            'someint': 123,
+        },
+        {
+            'somestr': 'content',
+            'someint': 123,
+            'not_in_scheme_prop': 123,
+        },
+    ])
+    def test_schema_any_all_of_invalid_properties(
+            self, value, unmarshaller_factory):
+        schema = Schema(
+            all_of=[
+                Schema(
+                    'object',
+                    required=['somestr'],
+                    properties={
+                        'somestr': Schema('string'),
+                    },
+                ),
+                Schema(
+                    'object',
+                    required=['someint'],
+                    properties={
+                        'someint': Schema('integer'),
+                    },
+                ),
+            ],
+            additional_properties=False,
+        )
+
+        with pytest.raises(InvalidSchemaValue):
+            unmarshaller_factory(schema)(value)
+
+    def test_schema_any_all_of_any(self, unmarshaller_factory):
+        schema = Schema(all_of=[
+            Schema(),
+            Schema('string', schema_format='date'),
+        ])
+        value = '2018-01-02'
+
+        result = unmarshaller_factory(schema)(value)
+
+        assert result == datetime.date(2018, 1, 2)
 
     def test_schema_any(self, unmarshaller_factory):
         schema = Schema()

@@ -144,7 +144,8 @@ class ArrayUnmarshaller(ComplexUnmarshaller):
 
     def __call__(self, value=NoValue):
         value = super(ArrayUnmarshaller, self).__call__(value)
-
+        if value is None and self.schema.nullable:
+            return None
         return list(map(self.items_unmarshaller, value))
 
 
@@ -247,10 +248,14 @@ class AnyUnmarshaller(ComplexUnmarshaller):
         SchemaType.INTEGER, SchemaType.NUMBER, SchemaType.STRING,
     ]
 
-    def __call__(self, value=NoValue):
+    def unmarshal(self, value=NoValue):
         one_of_schema = self._get_one_of_schema(value)
         if one_of_schema:
             return self.unmarshallers_factory.create(one_of_schema)(value)
+
+        all_of_schema = self._get_all_of_schema(value)
+        if all_of_schema:
+            return self.unmarshallers_factory.create(all_of_schema)(value)
 
         for schema_type in self.SCHEMA_TYPES_ORDER:
             unmarshaller = self.unmarshallers_factory.create(
@@ -270,6 +275,20 @@ class AnyUnmarshaller(ComplexUnmarshaller):
         if not self.schema.one_of:
             return
         for subschema in self.schema.one_of:
+            unmarshaller = self.unmarshallers_factory.create(subschema)
+            try:
+                unmarshaller.validate(value)
+            except ValidateError:
+                continue
+            else:
+                return subschema
+
+    def _get_all_of_schema(self, value):
+        if not self.schema.all_of:
+            return
+        for subschema in self.schema.all_of:
+            if subschema.type == SchemaType.ANY:
+                continue
             unmarshaller = self.unmarshallers_factory.create(subschema)
             try:
                 unmarshaller.validate(value)
