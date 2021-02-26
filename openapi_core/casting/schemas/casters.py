@@ -37,3 +37,19 @@ class ArrayCaster(object):
         if value in (None, NoValue):
             return value
         return list(map(self.items_caster, value))
+
+
+class ObjectCaster(object):
+
+    def __init__(self, schema, casters_factory):
+        self.schema = schema
+        self.casters_factory = casters_factory
+
+    def __call__(self, value):
+        if value in (None, NoValue):
+            return value
+        casted = {}
+        for key, schema in self.schema.get_all_properties().items():
+            if key in value:
+                casted[key] = self.casters_factory.create(schema)(value[key])
+        return casted

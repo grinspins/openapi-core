@@ -1,7 +1,7 @@
 from openapi_core.schema.schemas.enums import SchemaType
 
 from openapi_core.casting.schemas.casters import (
-    PrimitiveCaster, DummyCaster, ArrayCaster
+    PrimitiveCaster, DummyCaster, ArrayCaster, ObjectCaster
 )
 from openapi_core.casting.schemas.util import forcebool
 
@@ -9,7 +9,7 @@ from openapi_core.casting.schemas.util import forcebool
 class SchemaCastersFactory(object):
 
     DUMMY_CASTERS = [
-        SchemaType.STRING, SchemaType.OBJECT, SchemaType.ANY,
+        SchemaType.STRING, SchemaType.ANY,
     ]
     PRIMITIVE_CASTERS = {
         SchemaType.INTEGER: int,
@@ -18,6 +18,7 @@ class SchemaCastersFactory(object):
     }
     COMPLEX_CASTERS = {
         SchemaType.ARRAY: ArrayCaster,
+        SchemaType.OBJECT: ObjectCaster
     }
 
     def create(self, schema):
