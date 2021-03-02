@@ -294,16 +294,25 @@ class TestSchemaUnmarshallerCall(object):
 
         assert result == int(value)
 
-    def test_integer_string_invalid(self, unmarshaller_factory):
+    def test_integer_string_cast(self, unmarshaller_factory):
         schema = Schema('integer')
         value = '123'
+        expected = 123
+
+        result = unmarshaller_factory(schema)(value)
+
+        assert result == expected
+
+    def test_integer_string_invalid(self, unmarshaller_factory):
+        schema = Schema('integer')
+        value = 'not-a-number'
 
         with pytest.raises(InvalidSchemaValue):
             unmarshaller_factory(schema)(value)
 
     def test_integer_enum_invalid(self, unmarshaller_factory):
         schema = Schema('integer', enum=[1, 2, 3])
-        value = '123'
+        value = 4
 
         with pytest.raises(UnmarshalError):
             unmarshaller_factory(schema)(value)
@@ -316,12 +325,13 @@ class TestSchemaUnmarshallerCall(object):
 
         assert result == int(value)
 
-    def test_integer_enum_string_invalid(self, unmarshaller_factory):
+    def test_integer_enum_string_cast(self, unmarshaller_factory):
         schema = Schema('integer', enum=[1, 2, 3])
         value = '2'
 
-        with pytest.raises(UnmarshalError):
-            unmarshaller_factory(schema)(value)
+        result = unmarshaller_factory(schema)(value)
+
+        assert result == int(value)
 
     def test_integer_default(self, unmarshaller_factory):
         default_value = 123
@@ -399,9 +409,18 @@ class TestSchemaUnmarshallerCall(object):
 
         assert result == value
 
-    def test_boolean_string_invalid(self, unmarshaller_factory):
+    def test_boolean_string_cast(self, unmarshaller_factory):
         schema = Schema('boolean')
         value = 'True'
+        expected = True
+
+        result = unmarshaller_factory(schema)(value)
+
+        assert result == expected
+
+    def test_boolean_string_invalid(self, unmarshaller_factory):
+        schema = Schema('boolean')
+        value = 'positive'
 
         with pytest.raises(InvalidSchemaValue):
             unmarshaller_factory(schema)(value)
@@ -414,15 +433,25 @@ class TestSchemaUnmarshallerCall(object):
 
         assert result == value
 
-    def test_number_string_invalid(self, unmarshaller_factory):
+    def test_number_string_cast(self, unmarshaller_factory):
         schema = Schema('number')
         value = '1.23'
+        expected = 1.23
+
+        # with pytest.raises(InvalidSchemaValue):
+        result = unmarshaller_factory(schema)(value)
+
+        assert result == expected
+
+    def test_number_string_invalid(self, unmarshaller_factory):
+        schema = Schema('number')
+        value = 'not-a-number'
 
         with pytest.raises(InvalidSchemaValue):
             unmarshaller_factory(schema)(value)
 
     def test_number_int(self, unmarshaller_factory):
-        schema = Schema('number')
+        schema = Schema('integer')
         value = 1
         result = unmarshaller_factory(schema)(value)
 
