@@ -85,12 +85,7 @@ class ResponseValidator(BaseValidator):
             return None, [exc, ]
 
         try:
-            casted = self._cast(media_type, deserialised)
-        except CastError as exc:
-            return None, [exc, ]
-
-        try:
-            data = self._unmarshal(media_type, casted)
+            data = self._unmarshal(media_type, deserialised)
         except (ValidateError, UnmarshalError) as exc:
             return None, [exc, ]
 

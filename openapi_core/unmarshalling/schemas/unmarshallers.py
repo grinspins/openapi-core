@@ -20,6 +20,8 @@ from openapi_core.unmarshalling.schemas.exceptions import (
     UnmarshalError, ValidateError, InvalidSchemaValue,
     InvalidSchemaFormatValue,
 )
+from openapi_core.casting.schemas.exceptions import CastError
+
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.unmarshalling.schemas.util import (
     forcebool, format_date, format_byte, format_uuid,
@@ -44,9 +46,22 @@ class PrimitiveTypeUnmarshaller(object):
         if value is None:
             return
 
-        self.validate(value)
+        try:
+            casted = self._cast(self.schema, value)
+        except CastError as exc:
+            raise InvalidSchemaValue(value, self.schema.type)
+        self.validate(casted)
 
-        return self.unmarshal(value)
+        return self.unmarshal(casted)
+
+    def _cast(self, schema, value):
+        if not schema:
+            return value
+
+        from openapi_core.casting.schemas.factories import SchemaCastersFactory
+        casters_factory = SchemaCastersFactory()
+        caster = casters_factory.create(schema)
+        return caster(value)
 
     def _formatter_validate(self, value):
         result = self.formatter.validate(value)
@@ -63,7 +78,7 @@ class PrimitiveTypeUnmarshaller(object):
     def unmarshal(self, value):
         try:
             return self.formatter.unmarshal(value)
-        except ValueError as exc:
+        except (ValueError, CastError) as exc:
             raise InvalidSchemaFormatValue(
                 value, self.schema.format, exc)
 
@@ -262,11 +277,12 @@ class AnyUnmarshaller(ComplexUnmarshaller):
                 self.schema, type_override=schema_type)
             # validate with validator of formatter (usualy type validator)
             try:
-                unmarshaller._formatter_validate(value)
+                casted = self._cast(self.schema, value)
+                unmarshaller._formatter_validate(casted)
             except ValidateError:
                 continue
             else:
-                return unmarshaller(value)
+                return unmarshaller(casted)
 
         log.warning("failed to unmarshal any type")
         return value
