@@ -9,7 +9,7 @@ from openapi_core.casting.schemas.util import forcebool
 class SchemaCastersFactory(object):
 
     DUMMY_CASTERS = [
-        SchemaType.STRING, SchemaType.ANY,
+        SchemaType.STRING, SchemaType.ANY, SchemaType.OBJECT
     ]
     PRIMITIVE_CASTERS = {
         SchemaType.INTEGER: int,
@@ -18,7 +18,7 @@ class SchemaCastersFactory(object):
     }
     COMPLEX_CASTERS = {
         SchemaType.ARRAY: ArrayCaster,
-        SchemaType.OBJECT: ObjectCaster
+        # SchemaType.OBJECT: ObjectCaster
     }
 
     def create(self, schema):
