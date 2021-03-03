@@ -157,7 +157,6 @@ class TestFlaskOpenAPIView(object):
             ]
         }
         assert result.status_code == 400
-        print(result.json)
         assert result.json == expected_data
 
     def test_valid(self, client):
