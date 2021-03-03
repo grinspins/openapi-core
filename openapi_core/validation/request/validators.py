@@ -124,7 +124,7 @@ class RequestValidator(BaseValidator):
             except MissingParameter:
                 if not param.schema or not param.schema.has_default():
                     continue
-                casted = param.schema.default
+                deserialised = param.schema.default
             else:
                 try:
                     deserialised = self._deserialise_parameter(
@@ -133,14 +133,8 @@ class RequestValidator(BaseValidator):
                     errors.append(exc)
                     continue
 
-                try:
-                    casted = self._cast(param, deserialised)
-                except CastError as exc:
-                    errors.append(exc)
-                    continue
-
             try:
-                unmarshalled = self._unmarshal(param, casted)
+                unmarshalled = self._unmarshal(param, deserialised)
             except (ValidateError, UnmarshalError) as exc:
                 errors.append(exc)
             else:
@@ -169,12 +163,7 @@ class RequestValidator(BaseValidator):
             return None, [exc, ]
 
         try:
-            casted = self._cast(media_type, deserialised)
-        except CastError as exc:
-            return None, [exc, ]
-
-        try:
-            body = self._unmarshal(media_type, casted)
+            body = self._unmarshal(media_type, deserialised)
         except (ValidateError, UnmarshalError) as exc:
             return None, [exc, ]
 
