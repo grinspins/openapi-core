@@ -6,7 +6,6 @@ from uuid import UUID
 from isodate.tzinfo import UTC
 from six import text_type
 
-from openapi_core.casting.schemas.exceptions import CastError
 from openapi_core.deserializing.exceptions import DeserializeError
 from openapi_core.deserializing.parameters.exceptions import (
     EmptyParameterValue,
@@ -302,7 +301,7 @@ class TestPetstore(object):
             path_pattern=path_pattern, args=query_params,
         )
 
-        with pytest.raises(CastError):
+        with pytest.raises(InvalidSchemaValue):
             validate_parameters(spec, request)
 
         body = validate_body(spec, request)

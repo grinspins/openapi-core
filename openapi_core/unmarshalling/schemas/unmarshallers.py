@@ -20,6 +20,7 @@ from openapi_core.unmarshalling.schemas.exceptions import (
     UnmarshalError, ValidateError, InvalidSchemaValue,
     InvalidSchemaFormatValue,
 )
+from openapi_core.casting.schemas.exceptions import CastError
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.unmarshalling.schemas.util import (
     forcebool, format_date, format_byte, format_uuid,
@@ -44,9 +45,23 @@ class PrimitiveTypeUnmarshaller(object):
         if value is None:
             return
 
-        self.validate(value)
+        try:
+            casted = self._cast(self.schema, value)
+        except CastError as exc:
+            raise InvalidSchemaValue(
+                value, self.schema.type, schema_errors=exc)
+        self.validate(casted)
 
-        return self.unmarshal(value)
+        return self.unmarshal(casted)
+
+    def _cast(self, schema, value):
+        if not schema:
+            return value
+
+        from openapi_core.casting.schemas.factories import SchemaCastersFactory
+        casters_factory = SchemaCastersFactory()
+        caster = casters_factory.create(schema)
+        return caster(value)
 
     def _formatter_validate(self, value):
         result = self.formatter.validate(value)

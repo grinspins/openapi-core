@@ -36,4 +36,8 @@ class ArrayCaster(object):
     def __call__(self, value):
         if value in (None, NoValue):
             return value
+
+        if not isinstance(value, list):
+            raise CastError(value, self.schema.type.value)
+
         return list(map(self.items_caster, value))
