@@ -6,7 +6,6 @@ from uuid import UUID
 from isodate.tzinfo import UTC
 from six import text_type
 
-from openapi_core.casting.schemas.exceptions import CastError
 from openapi_core.deserializing.exceptions import DeserializeError
 from openapi_core.deserializing.parameters.exceptions import (
     EmptyParameterValue,

@@ -3,7 +3,6 @@ import json
 import pytest
 from six import text_type
 
-from openapi_core.casting.schemas.exceptions import CastError
 from openapi_core.deserializing.exceptions import DeserializeError
 from openapi_core.schema.media_types.exceptions import (
     InvalidContentType,

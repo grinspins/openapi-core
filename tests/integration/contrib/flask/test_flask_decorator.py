@@ -151,8 +151,8 @@ class TestFlaskOpenAPIDecorator(object):
             'errors': [
                 {
                     'class': (
-                        "<class 'openapi_core.unmarshalling.schemas.exceptions."
-                        "InvalidSchemaValue'>"
+                        "<class 'openapi_core.unmarshalling.schemas.exceptions"
+                        ".InvalidSchemaValue'>"
                     ),
                     'status': 400,
                     'title': (

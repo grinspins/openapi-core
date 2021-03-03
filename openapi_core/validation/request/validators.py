@@ -2,7 +2,6 @@
 from itertools import chain
 from six import iteritems
 
-from openapi_core.casting.schemas.exceptions import CastError
 from openapi_core.deserializing.exceptions import DeserializeError
 from openapi_core.schema.media_types.exceptions import InvalidContentType
 from openapi_core.schema.parameters.exceptions import (
