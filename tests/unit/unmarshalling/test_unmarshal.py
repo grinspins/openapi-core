@@ -205,7 +205,7 @@ class TestSchemaUnmarshallerCall(object):
 
     def test_string_format_datetime_invalid(self, unmarshaller_factory):
         schema = Schema('string', schema_format='date-time')
-        value = '2018-01-02T00:00:00'
+        value = '2018-01-02A00:00:00'
 
         with pytest.raises(InvalidSchemaValue):
             unmarshaller_factory(schema)(value)
