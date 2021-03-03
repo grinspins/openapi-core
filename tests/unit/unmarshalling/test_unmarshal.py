@@ -310,13 +310,6 @@ class TestSchemaUnmarshallerCall(object):
         with pytest.raises(InvalidSchemaValue):
             unmarshaller_factory(schema)(value)
 
-    def test_integer_enum_invalid(self, unmarshaller_factory):
-        schema = Schema('integer', enum=[1, 2, 3])
-        value = 4
-
-        with pytest.raises(UnmarshalError):
-            unmarshaller_factory(schema)(value)
-
     def test_integer_enum(self, unmarshaller_factory):
         schema = Schema('integer', enum=[1, 2, 3])
         value = 2
