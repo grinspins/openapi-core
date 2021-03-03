@@ -12,7 +12,7 @@ from openapi_core.schema.schemas.types import NoValue
 from openapi_core.unmarshalling.schemas.enums import UnmarshalContext
 from openapi_core.unmarshalling.schemas.exceptions import (
     InvalidSchemaFormatValue, InvalidSchemaValue, UnmarshalError,
-    FormatterNotFoundError,
+    FormatterNotFoundError
 )
 from openapi_core.unmarshalling.schemas.factories import (
     SchemaUnmarshallersFactory,

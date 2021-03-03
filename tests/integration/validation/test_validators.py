@@ -345,7 +345,7 @@ class TestPathItemParamsValidator(object):
         result = validator.validate(request)
 
         assert len(result.errors) == 1
-        assert type(result.errors[0]) == CastError
+        assert type(result.errors[0]) == InvalidSchemaValue
         assert result.body is None
         assert result.parameters == RequestParameters()
 

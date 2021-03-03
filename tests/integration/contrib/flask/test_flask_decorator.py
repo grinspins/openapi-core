@@ -151,16 +151,19 @@ class TestFlaskOpenAPIDecorator(object):
             'errors': [
                 {
                     'class': (
-                        "<class 'openapi_core.casting.schemas.exceptions."
-                        "CastError'>"
+                        "<class 'openapi_core.unmarshalling.schemas.exceptions."
+                        "InvalidSchemaValue'>"
                     ),
                     'status': 400,
                     'title': (
-                        "Failed to cast value invalidparameter to type integer"
+                        "Value invalidparameter not valid for schema of type "
+                        "SchemaType.INTEGER: Failed to cast value "
+                        "invalidparameter to type integer"
                     )
                 }
             ]
         }
+        assert result.status_code == 400
         assert result.json == expected_data
 
     def test_valid(self, client):
