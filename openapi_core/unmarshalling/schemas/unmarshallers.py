@@ -21,7 +21,6 @@ from openapi_core.unmarshalling.schemas.exceptions import (
     InvalidSchemaFormatValue,
 )
 from openapi_core.casting.schemas.exceptions import CastError
-
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.unmarshalling.schemas.util import (
     forcebool, format_date, format_byte, format_uuid,
@@ -78,7 +77,7 @@ class PrimitiveTypeUnmarshaller(object):
     def unmarshal(self, value):
         try:
             return self.formatter.unmarshal(value)
-        except (ValueError, CastError) as exc:
+        except ValueError as exc:
             raise InvalidSchemaFormatValue(
                 value, self.schema.format, exc)
 
@@ -277,12 +276,11 @@ class AnyUnmarshaller(ComplexUnmarshaller):
                 self.schema, type_override=schema_type)
             # validate with validator of formatter (usualy type validator)
             try:
-                casted = self._cast(self.schema, value)
-                unmarshaller._formatter_validate(casted)
+                unmarshaller._formatter_validate(value)
             except ValidateError:
                 continue
             else:
-                return unmarshaller(casted)
+                return unmarshaller(value)
 
         log.warning("failed to unmarshal any type")
         return value
