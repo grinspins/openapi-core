@@ -49,7 +49,7 @@ class PrimitiveTypeUnmarshaller(object):
         try:
             casted = self._cast(self.schema, value)
         except CastError as exc:
-            raise InvalidSchemaValue(value, self.schema.type)
+            raise InvalidSchemaValue(value, self.schema.type, schema_errors=exc)
         self.validate(casted)
 
         return self.unmarshal(casted)
